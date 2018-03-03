@@ -38,13 +38,13 @@ namespace BudgetCalculator
 
             for (var index = 0; index <= monthCount; index++)
             {
-                var effectivePeriod = EffectivePeriod(period, index, monthCount);
+                var effectivePeriod = GetEffectivePeriod(period, index, monthCount);
                 total += GetOneMonthAmount(effectivePeriod, this._repo.GetAll().Get(effectivePeriod.Start));
             }
             return total;
         }
 
-        private static Period EffectivePeriod(Period period, int index, int monthCount)
+        private static Period GetEffectivePeriod(Period period, int index, int monthCount)
         {
             Period effectivePeriod;
             if (index == 0)
