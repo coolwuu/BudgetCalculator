@@ -18,17 +18,14 @@ namespace BudgetCalculator
         public DateTime End { get; private set; }
         public DateTime Start { get; private set; }
 
-        public int EffectiveDays
-        {
-            get
-            {
-                return DateTime.DaysInMonth(Start.Year, Start.Month);
-            }
-        }
-
         public bool IsSameMonth()
         {
             return Start.Year == End.Year && Start.Month == End.Month;
+        }
+
+        public int EffectiveDays()
+        {
+            return (this.End - this.Start).Days + 1;
         }
     }
 }

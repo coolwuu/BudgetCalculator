@@ -2,7 +2,6 @@
 
 namespace BudgetCalculator
 {
-
     internal class BudgetCalculat
     {
         private readonly IRepository<Budget> _repo;
@@ -21,6 +20,19 @@ namespace BudgetCalculator
                 : GetRangeMonthAmount(start, end, period);
         }
 
+        private int GetOneMonthAmount(Period period)
+        {
+            var budgets = this._repo.GetAll();
+            var budget = budgets.Get(period.Start);
+
+            if (budget == null)
+            {
+                return 0;
+            }
+
+            return budget.DailyAmount() * period.EffectiveDays();
+        }
+
         private decimal GetRangeMonthAmount(DateTime start, DateTime end, Period period)
         {
             //var start = period.Start;
@@ -31,11 +43,11 @@ namespace BudgetCalculator
             {
                 if (index == 0)
                 {
-                    total += GetOneMonthAmount(new Period(start,start.LastDate()));
+                    total += GetOneMonthAmount(new Period(start, start.LastDate()));
                 }
                 else if (index == monthCount)
                 {
-                    total += GetOneMonthAmount(new Period(end.FirstDate(),end));
+                    total += GetOneMonthAmount(new Period(end.FirstDate(), end));
                 }
                 else
                 {
@@ -44,22 +56,6 @@ namespace BudgetCalculator
                 }
             }
             return total;
-        }
-
-        private int GetOneMonthAmount(Period period)
-        {
-            var list = this._repo.GetAll();
-            var budget = list.Get(period.Start)?.Amount ?? 0;
-
-            var days = DateTime.DaysInMonth(period.Start.Year, period.Start.Month);
-            var validDays = GetValidDays(period.Start, period.End);
-
-            return (budget / days) * validDays;
-        }
-
-        private int GetValidDays(DateTime start, DateTime end)
-        {
-            return (end - start).Days + 1;
         }
     }
 }
