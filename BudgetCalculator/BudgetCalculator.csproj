@@ -69,6 +69,8 @@
   <ItemGroup>
     <Compile Include="Budget.cs" />
     <Compile Include="BudgetCalculator.cs" />
+    <Compile Include="BudgetExtension.cs" />
+    <Compile Include="DateTimeExtension.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="Period.cs" />
     <Compile Include="UnitTest1.cs" />
