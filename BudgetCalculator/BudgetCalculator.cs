@@ -2,6 +2,7 @@
 
 namespace BudgetCalculator
 {
+
     internal class BudgetCalculat
     {
         private readonly IRepository<Budget> _repo;
@@ -18,7 +19,7 @@ namespace BudgetCalculator
                 throw new ArgumentException();
             }
 
-            return IsSameMonth(start, end)
+            return IsSameMonth(new Period(start, end))
                 ? GetOneMonthAmount(start, end)
                 : GetRangeMonthAmount(start, end);
         }
@@ -46,9 +47,9 @@ namespace BudgetCalculator
             return total;
         }
 
-        private bool IsSameMonth(DateTime start, DateTime end)
+        private bool IsSameMonth(Period period)
         {
-            return start.Year == end.Year && start.Month == end.Month;
+            return period.Start.Year == period.End.Year && period.Start.Month == period.End.Month;
         }
 
         private int GetOneMonthAmount(DateTime start, DateTime end)
