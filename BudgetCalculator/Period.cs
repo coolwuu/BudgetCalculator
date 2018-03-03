@@ -25,5 +25,10 @@ namespace BudgetCalculator
                 return DateTime.DaysInMonth(Start.Year, Start.Month);
             }
         }
+
+        public bool IsSameMonth()
+        {
+            return Start.Year == End.Year && Start.Month == End.Month;
+        }
     }
 }

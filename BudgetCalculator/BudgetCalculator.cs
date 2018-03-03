@@ -14,51 +14,45 @@ namespace BudgetCalculator
 
         public decimal Calculate(DateTime start, DateTime end)
         {
-            if (start > end)
-            {
-                throw new ArgumentException();
-            }
+            var period = new Period(start, end);
 
-            return IsSameMonth(new Period(start, end))
-                ? GetOneMonthAmount(start, end)
-                : GetRangeMonthAmount(start, end);
+            return period.IsSameMonth()
+                ? GetOneMonthAmount(period)
+                : GetRangeMonthAmount(start, end, period);
         }
 
-        private decimal GetRangeMonthAmount(DateTime start, DateTime end)
+        private decimal GetRangeMonthAmount(DateTime start, DateTime end, Period period)
         {
+            //var start = period.Start;
+            //var end = period.End;
             var monthCount = end.MonthDifference(start);
             var total = 0;
             for (var index = 0; index <= monthCount; index++)
             {
                 if (index == 0)
                 {
-                    total += GetOneMonthAmount(start, start.LastDate());
+                    total += GetOneMonthAmount(new Period(start,start.LastDate()));
                 }
                 else if (index == monthCount)
                 {
-                    total += GetOneMonthAmount(end.FirstDate(), end);
+                    total += GetOneMonthAmount(new Period(end.FirstDate(),end));
                 }
                 else
                 {
                     var now = start.AddMonths(index);
-                    total += GetOneMonthAmount(now.FirstDate(), now.LastDate());
+                    total += GetOneMonthAmount(new Period(now.FirstDate(), now.LastDate()));
                 }
             }
             return total;
         }
 
-        private bool IsSameMonth(Period period)
-        {
-            return period.Start.Year == period.End.Year && period.Start.Month == period.End.Month;
-        }
-
-        private int GetOneMonthAmount(DateTime start, DateTime end)
+        private int GetOneMonthAmount(Period period)
         {
             var list = this._repo.GetAll();
-            var budget = list.Get(start)?.Amount ?? 0;
+            var budget = list.Get(period.Start)?.Amount ?? 0;
 
-            var days = DateTime.DaysInMonth(start.Year, start.Month);
-            var validDays = GetValidDays(start, end);
+            var days = DateTime.DaysInMonth(period.Start.Year, period.Start.Month);
+            var validDays = GetValidDays(period.Start, period.End);
 
             return (budget / days) * validDays;
         }
