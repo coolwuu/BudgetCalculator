@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace BudgetCalculator
 {
@@ -15,47 +16,51 @@ namespace BudgetCalculator
         {
             var period = new Period(start, end);
 
+            var budget = this._repo.GetAll().Get(period.Start);
             return period.IsSameMonth()
-                ? GetOneMonthAmount(period)
-                : GetRangeMonthAmount(start, end, period);
+                ? GetOneMonthAmount(period, budget)
+                : GetRangeMonthAmount(period);
         }
 
-        private int GetOneMonthAmount(Period period)
+        private int GetOneMonthAmount(Period period, Budget budget)
         {
-            var budgets = this._repo.GetAll();
-            var budget = budgets.Get(period.Start);
-
             if (budget == null)
             {
                 return 0;
             }
-
             return budget.DailyAmount() * period.EffectiveDays();
         }
 
-        private decimal GetRangeMonthAmount(DateTime start, DateTime end, Period period)
+        private decimal GetRangeMonthAmount(Period period)
         {
-            //var start = period.Start;
-            //var end = period.End;
-            var monthCount = end.MonthDifference(start);
+            var monthCount = period.MonthCount();
             var total = 0;
+
             for (var index = 0; index <= monthCount; index++)
             {
-                if (index == 0)
-                {
-                    total += GetOneMonthAmount(new Period(start, start.LastDate()));
-                }
-                else if (index == monthCount)
-                {
-                    total += GetOneMonthAmount(new Period(end.FirstDate(), end));
-                }
-                else
-                {
-                    var now = start.AddMonths(index);
-                    total += GetOneMonthAmount(new Period(now.FirstDate(), now.LastDate()));
-                }
+                var effectivePeriod = EffectivePeriod(period, index, monthCount);
+                total += GetOneMonthAmount(effectivePeriod, this._repo.GetAll().Get(effectivePeriod.Start));
             }
             return total;
+        }
+
+        private static Period EffectivePeriod(Period period, int index, int monthCount)
+        {
+            Period effectivePeriod;
+            if (index == 0)
+            {
+                effectivePeriod = new Period(period.Start, period.Start.LastDate());
+            }
+            else if (index == monthCount)
+            {
+                effectivePeriod = new Period(period.End.FirstDate(), period.End);
+            }
+            else
+            {
+                effectivePeriod = new Period(period.Start.AddMonths(index).FirstDate(),
+                    period.Start.AddMonths(index).LastDate());
+            }
+            return effectivePeriod;
         }
     }
 }

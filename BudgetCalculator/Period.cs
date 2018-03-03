@@ -27,5 +27,10 @@ namespace BudgetCalculator
         {
             return (this.End - this.Start).Days + 1;
         }
+
+        public int MonthCount()
+        {
+            return End.MonthDifference(Start);
+        }
     }
 }
